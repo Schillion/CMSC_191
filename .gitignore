@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# Virtual environments
+venv/
+.env/
+
+# Model files (large binaries)
+*.pkl
+
+# Outputs (generated at runtime)
+outputs/
+
+# OS files
+.DS_Store
+Thumbs.db

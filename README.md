@@ -41,14 +41,16 @@ CMSC 191/
 Python 3.8 or higher. Install dependencies:
 
 ```
-pip install numpy pandas matplotlib scikit-learn joblib
+pip install numpy pandas matplotlib "scikit-learn>=1.2" joblib
 ```
+
+The `scikit-learn>=1.2` requirement is needed for the `sparse_output` parameter used in one-hot encoding. Earlier versions will raise a `TypeError`.
 
 ---
 
 ## How to Run (Windows PowerShell)
 
-Place the dataset file in the same folder as the script, then run:
+Place the dataset file in the same folder as the script, then run (adjust the path to match your machine):
 
 ```powershell
 cd "C:\Users\carlt\Desktop\CMSC 191"

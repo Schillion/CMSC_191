@@ -261,7 +261,8 @@ print(f"\nTraining complete. Iterations used: {model.named_steps['classifier'].n
 # Default MLP (threshold=0.50): standard predictions without any threshold tuning.
 
 majority_clf = DummyClassifier(strategy="most_frequent", random_state=RANDOM_SEED)
-majority_clf.fit(X_train_bal, y_train_bal)
+# Fit on unbalanced training data so the classifier learns the real majority class.
+majority_clf.fit(X_train, y_train)
 
 test_probabilities = model.predict_proba(X_test)[:, 1]
 majority_preds     = majority_clf.predict(X_test)
@@ -294,7 +295,8 @@ print("MLP (threshold=0.50):", default_metrics)
 val_probs = model.predict_proba(X_val)[:, 1]
 threshold_rows = []
 
-for t in np.arange(0.10, 0.91, 0.01):
+# np.linspace avoids floating-point drift that can cause np.arange to miss 0.90.
+for t in np.linspace(0.10, 0.90, 81):
     preds   = (val_probs >= t).astype(int)
     cm_val  = confusion_matrix(y_val, preds, labels=[0, 1])
     tn, fp, fn, tp = cm_val.ravel()
@@ -342,9 +344,9 @@ print(classification_report(y_test, test_preds_tuned, zero_division=0))
 # All three models compared side by side — useful for the results section.
 
 comparison = pd.DataFrame([
-    {"Model": "Majority Baseline",          **majority_metrics},
-    {"Model": "MLP (threshold=0.50)",        **default_metrics},
-    {"Model": f"MLP (threshold={best_threshold})", **tuned_metrics},
+    {"Model": "Majority Baseline",                 **majority_metrics, "PR-AUC": "N/A"},
+    {"Model": "MLP (threshold=0.50)",              **default_metrics,  "PR-AUC": "N/A"},
+    {"Model": f"MLP (threshold={best_threshold})", **tuned_metrics,    "PR-AUC": pr_auc},
 ])
 comparison.to_csv(OUTPUT_DIR / "model_comparison.csv", index=False)
 
@@ -404,7 +406,7 @@ joblib.dump(model, OUTPUT_DIR / "advertisement_response_mlp_model.pkl")
 # --- Confusion matrix plot ---
 
 fig, ax = plt.subplots(figsize=(5, 4))
-im = ax.imshow(cm, cmap="Blues")
+ax.imshow(cm, cmap="Blues")
 ax.set_title("Confusion Matrix")
 ax.set_xlabel("Predicted")
 ax.set_ylabel("Actual")
@@ -499,7 +501,7 @@ Random seed:   {RANDOM_SEED}
 
 Dataset: {dataset_path.name}
 Original shape: {df.shape}
-After cleaning: {data.shape}
+After cleaning and feature engineering: {data.shape}
 
 Target distribution (full dataset):
 {data[TARGET].value_counts().to_string()}
@@ -547,5 +549,5 @@ with open(OUTPUT_DIR / "summary.txt", "w", encoding="utf-8") as f:
 
 print("\nAll outputs saved to:", OUTPUT_DIR)
 print("\nFiles generated:")
-for f in sorted(OUTPUT_DIR.iterdir()):
-    print(" -", f.name)
+for fname in sorted(OUTPUT_DIR.iterdir()):
+    print(" -", fname.name)
