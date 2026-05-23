@@ -106,7 +106,7 @@ A multilayer perceptron with two hidden layers (32 units, 16 units), ReLU activa
 
 **Threshold tuning**
 
-Because the dataset is imbalanced, the default classification threshold of 0.50 tends to under-predict the minority class. The threshold is swept from 0.10 to 0.90 on the validation set and the value that maximizes the validation F1-score is selected. The test set is evaluated only once, using this threshold.
+Because the dataset is imbalanced, the default classification threshold of 0.50 may not give the best balance between precision and recall for the minority response class. The threshold is swept from 0.10 to 0.90 on the validation set and the value that maximizes the validation F1-score is selected. The test set is evaluated only once, using this threshold.
 
 ---
 
